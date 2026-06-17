@@ -1,11 +1,14 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ModuleRef } from '@nestjs/core';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createLogger } from '../../common/services/logger.service';
 import { HookManager } from '../hooks';
 import {
+  PluginCapabilityError,
   PluginManifest,
+  PluginMessagingCapability,
   PluginInstance,
   PluginStatus,
   PluginContext,
@@ -14,6 +17,7 @@ import {
   PluginLogger,
 } from './plugin.interfaces';
 import { PluginStorageService } from './plugin-storage.service';
+import { MessageService } from '../../modules/message/message.service';
 
 /**
  * Resolve a plugin's `main` entry to an absolute path, asserting it stays inside
@@ -39,6 +43,10 @@ export class PluginLoaderService implements OnModuleInit {
     private readonly configService: ConfigService,
     private readonly hookManager: HookManager,
     private readonly pluginStorage: PluginStorageService,
+    // Resolves MessageService/SessionService lazily inside capability verbs. ModuleRef
+    // (not constructor injection) breaks the provider cycle
+    // PluginLoaderService -> SessionService -> EngineFactory -> PluginLoaderService.
+    private readonly moduleRef: ModuleRef,
   ) {
     this.pluginsDir = this.configService.get<string>('plugins.dir') ?? './plugins';
   }
@@ -273,6 +281,19 @@ export class PluginLoaderService implements OnModuleInit {
     });
   }
 
+  /**
+   * Enforce a plugin's manifest session scope. Runs BEFORE any engine/message resolution —
+   * sessionId is supplied by the plugin, so this is the security boundary. Absent = ['*'].
+   */
+  private assertSessionAllowed(manifest: PluginManifest, sessionId: string): void {
+    const allowed = manifest.sessions ?? ['*'];
+    if (!allowed.includes('*') && !allowed.includes(sessionId)) {
+      throw new PluginCapabilityError(
+        `Plugin ${manifest.id} is not permitted to act on session ${sessionId}`,
+      );
+    }
+  }
+
   private createPluginContext(plugin: PluginInstance): PluginContext {
     const pluginLogger: PluginLogger = {
       log: (message, meta) =>
@@ -299,11 +320,18 @@ export class PluginLoaderService implements OnModuleInit {
       registerHook: (event, handler, priority) => {
         this.hookManager.register(plugin.manifest.id, event, handler, priority);
       },
-      getService: <T>(): T | undefined => {
-        // Limited service access for sandboxing
-        // Only expose safe services
-        return undefined;
-      },
+      messages: {
+        sendText: async (sessionId, chatId, text) => {
+          this.assertSessionAllowed(plugin.manifest, sessionId);
+          return this.moduleRef.get(MessageService, { strict: false }).sendText(sessionId, { chatId, text });
+        },
+        reply: async (sessionId, chatId, quotedMessageId, text) => {
+          this.assertSessionAllowed(plugin.manifest, sessionId);
+          return this.moduleRef
+            .get(MessageService, { strict: false })
+            .reply(sessionId, { chatId, quotedMessageId, text });
+        },
+      } satisfies PluginMessagingCapability,
     };
   }
 

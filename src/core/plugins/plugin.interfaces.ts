@@ -4,6 +4,7 @@
  */
 
 import { HookManager, HookEvent, HookHandler } from '../hooks';
+import type { MessageResponseDto } from '../../modules/message/dto';
 
 // ============================================================================
 // Plugin Types
@@ -57,6 +58,13 @@ export interface PluginManifest {
 
   // Required features from other plugins
   requires?: string[];
+
+  // Capabilities this plugin declares (informational at this tier; not per-verb enforced)
+  permissions?: string[];
+
+  // Session ids this plugin may act on, or ['*']. Absent = ['*'] (all). Enforced by the
+  // capability facade. Static (manifest) by design: editing plugin config cannot widen scope.
+  sessions?: string[];
 }
 
 export interface PluginConfigSchema {
@@ -73,6 +81,31 @@ export interface PluginConfigSchema {
       secret?: boolean; // For sensitive values like API keys
     }
   >;
+}
+
+// ============================================================================
+// Plugin Capability
+// ============================================================================
+
+/**
+ * Thrown by a plugin capability when a call is rejected (out-of-scope session,
+ * unstarted session, etc.). Gives plugins a predictable failure instead of a raw TypeError.
+ */
+export class PluginCapabilityError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PluginCapabilityError';
+  }
+}
+
+export interface PluginMessagingCapability {
+  sendText(sessionId: string, chatId: string, text: string): Promise<MessageResponseDto>;
+  reply(
+    sessionId: string,
+    chatId: string,
+    quotedMessageId: string,
+    text: string,
+  ): Promise<MessageResponseDto>;
 }
 
 // ============================================================================
@@ -99,8 +132,8 @@ export interface PluginContext {
   // Register a hook handler
   registerHook: (event: HookEvent, handler: HookHandler, priority?: number) => void;
 
-  // Get service from DI container (limited access)
-  getService: <T>(token: string) => T | undefined;
+  // Curated write surface — routes through MessageService (persistence preserved).
+  messages: PluginMessagingCapability;
 }
 
 export interface PluginLogger {

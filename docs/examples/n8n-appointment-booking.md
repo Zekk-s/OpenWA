@@ -130,7 +130,7 @@ Reply with 1 or 2 to confirm one of these options.
 ## Operational Notes
 
 - Store booking state outside WhatsApp, for example in your scheduling system, CRM, or database.
-- Add an idempotency key based on the incoming `messageId` to avoid duplicate bookings if a workflow is retried.
+- Add an idempotency key based on the incoming `id` (the message ID in the `message.received` payload) to avoid duplicate bookings if a workflow is retried.
 - Confirm the booking only after the external system accepts the slot.
 - Add a fallback path for unsupported messages or missing required fields.
 - Respect applicable messaging rules and avoid unsolicited or high-volume messages.

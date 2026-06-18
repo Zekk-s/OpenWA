@@ -95,7 +95,7 @@ Start workflows when WhatsApp events occur.
   "timestamp": "2024-01-15T10:30:00Z",
   "sessionId": "default",
   "data": {
-    "messageId": "3EB0F5A2B4C...",
+    "id": "3EB0F5A2B4C...",
     "chatId": "628123456789@c.us",
     "from": "628123456789@c.us",
     "body": "Hello!",

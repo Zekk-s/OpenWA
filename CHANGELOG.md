@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.11] - 2026-06-29
+
 ### Added
 
 - **Disappearing-messages support (Baileys engine).** Outbound messages now honor a chat's disappearing-messages timer and set it on each send (text, media, and replies), so recipients no longer see _"This message won't disappear — the sender may be using an older version of WhatsApp."_ The timer is learned from inbound messages — the reliable source, since the cached chat setting is often absent for a long-standing timer — and resolved across both phone and `@lid` chat identifiers so it applies on LID-migrated 1:1 chats, with a fallback to the chat's cached setting. It is applied only when a positive value is known; when it's unknown or disabled, the per-message expiration is omitted, exactly as before. Reactions, deletes/revokes, and status posts are unaffected. Thanks @ulises2k. (#473, #513)
@@ -20,9 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Inbound media downloads are bounded by a wall-clock timeout.** A slow or stalled inbound media transfer could hold a download slot — and, on the Baileys engine, the entire inbound-message pipeline — open indefinitely. Downloads now time out (`MEDIA_DOWNLOAD_TIMEOUT_MS`, default 30s) and the message is delivered with the media omitted. (#510)
 - **Webhook delivery identifiers stay consistent with the signed body.** The `X-OpenWA-Idempotency-Key` / `X-OpenWA-Delivery-Id` headers could diverge from the signed payload when a `webhook:before` plugin returned a modified payload, and all webhooks for an event shared one `data` object. Each webhook now receives an isolated copy of the data and the server-generated identifiers are authoritative. (#512)
 - **`POST /auth/validate`** no longer double-counts key usage and now validates IP-restricted keys correctly (it previously reported a valid IP-pinned key as invalid). (#507)
-- **`GET /settings`** now requires an ADMIN key, matching the rest of the configuration surface (it was readable by any authenticated key). (#514)
+- **⚠️ `GET /settings` now requires an ADMIN key** (behavior change) — matching the rest of the configuration surface; it was previously readable by any authenticated key. A client that read settings with a non-admin key must switch to an ADMIN key. (#514)
 - **Bulk-message `batchId` uniqueness** is scoped per session, so two sessions can reuse a batch id and neither can probe the other's id namespace. (#515)
-- **Boot-time configuration validation** rejects `0` for the rate-limit limits and the webhook timeout (values that silently disable throttling or abort every delivery). (#516)
+- **⚠️ Boot-time configuration validation** now rejects `0` for the rate-limit limits and the webhook timeout (behavior change) — values that silently disabled throttling or aborted every delivery. A deployment that set `0` to disable these must remove the override or use a positive value. (#516)
 - **SSRF protection** now blocks the RFC6052 IPv4-translatable IPv6 form (`::ffff:0:a.b.c.d`), closing a gap where an internal address could be reached behind a NAT64/SIIT translator. (#518)
 - **Per-key IP allowlist** now uses the shared, hardened IP matcher and rejects a malformed client address instead of coercing it into an allowed range. (#519)
 - **Dashboard:** the Infrastructure page is no longer rendered for non-admin roles, and image-attachment preview object URLs are released after use. (#508)

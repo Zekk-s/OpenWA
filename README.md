@@ -275,6 +275,20 @@ curl -X POST http://localhost:2785/api/sessions/{sessionId}/webhooks \
 > Fields: `sender` / `recipient` / `body` / `type` / `mentions` / `fromMe` / `hasMedia` / `isGroup`. A
 > webhook with no filters behaves exactly as before. See the API specification for the full schema.
 
+### Agent routing for group chats
+
+For Slack-like agent orchestration, subscribe to the new `conversation.routing` webhook event. OpenWA
+emits it for group messages and includes normalized routing hints:
+
+- `ownershipKey` for task locking (`chatId:threadId`)
+- `textMentions` for `@agent-name` tokens
+- `tags` for `#tag` tokens
+- `whatsappMentions` for actual WhatsApp mentions
+- `needsTriage` when no explicit target was named
+
+The original `message.received` payload also carries the same `collaboration` metadata so external
+orchestrators can either react to the raw message or the normalized routing event.
+
 ## 🤖 MCP Server (AI Agents)
 
 OpenWA can expose a **curated set of tools over the [Model Context Protocol](https://modelcontextprotocol.io)** so AI agents (Claude, Cursor, …) can drive WhatsApp. It is **off by default** and **additive** — every REST route keeps working unchanged.

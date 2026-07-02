@@ -1179,6 +1179,59 @@ describe('SessionService', () => {
       expect(dispatchedEvents('message.sent')).toHaveLength(0);
     });
 
+    it('emits a normalized conversation.routing event for group messages with agent hints', async () => {
+      echoHook();
+      const callbacks = await startAndCaptureCallbacks();
+
+      callbacks.onMessage!(
+        makeMessage({
+          id: 'wa-group-1',
+          from: '123-456@g.us',
+          to: 'me@c.us',
+          chatId: '123-456@g.us',
+          author: '628111222333@c.us',
+          body: 'triage @ops-lead #billing',
+          mentionedIds: ['628222333444@c.us'],
+          isGroup: true,
+        }),
+      );
+      await flush();
+
+      const routing = dispatchedEvents('conversation.routing');
+      expect(routing).toHaveLength(1);
+      expect(routing[0][0]).toBe('sess-uuid-1');
+      expect(routing[0][2]).toMatchObject({
+        sessionId: 'sess-uuid-1',
+        chatId: '123-456@g.us',
+        messageId: 'wa-group-1',
+        senderId: '628111222333@c.us',
+        threadId: 'wa-group-1',
+        ownershipKey: '123-456@g.us:wa-group-1',
+        textMentions: ['ops-lead'],
+        tags: ['billing'],
+        whatsappMentions: ['628222333444@c.us'],
+        targetedAgents: ['ops-lead', 'billing', '628222333444@c.us'],
+        needsTriage: false,
+        message: {
+          id: 'wa-group-1',
+          chatId: '123-456@g.us',
+          from: '123-456@g.us',
+          to: 'me@c.us',
+          body: 'triage @ops-lead #billing',
+          author: '628111222333@c.us',
+          quotedMessageId: null,
+        },
+      });
+
+      const received = dispatchedEvents('message.received')[0][2] as { collaboration?: unknown };
+      expect(received.collaboration).toEqual(
+        expect.objectContaining({
+          ownershipKey: '123-456@g.us:wa-group-1',
+          targetedAgents: ['ops-lead', 'billing', '628222333444@c.us'],
+        }),
+      );
+    });
+
     it('does not dispatch message.received for a status/story broadcast via onMessage (isStatusBroadcast)', async () => {
       const callbacks = await startAndCaptureCallbacks();
 

@@ -39,7 +39,7 @@ import {
   deliveryStatusToAck,
   ackStatusTransitionFrom,
 } from '../message/message-status.util';
-import { buildAgentRoutingContext } from './group-routing.util';
+import { attachAgentRoutingContext } from './group-routing.util';
 
 interface ReconnectState {
   attempts: number;
@@ -699,10 +699,7 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
             }
 
             const chatName = incoming.contact?.pushName ?? incoming.contact?.name ?? undefined;
-            const collaboration = buildAgentRoutingContext(incoming);
-            if (collaboration) {
-              (incoming as IncomingMessage & { collaboration?: typeof collaboration }).collaboration = collaboration;
-            }
+            const collaboration = attachAgentRoutingContext(incoming);
 
             const dbMessage = this.messageRepository.create({
               sessionId: id,
@@ -747,12 +744,14 @@ export class SessionService implements OnModuleDestroy, OnModuleInit, OnApplicat
             // Dispatch to webhooks with potentially modified message
             void this.webhookService.dispatch(id, 'message.received', finalMessage);
             if (collaboration) {
+              // `conversation.routing` is the normalized orchestration surface: the top-level fields are the
+              // stable lock/index keys for an external agent registry, while the nested message summary keeps
+              // the raw conversational context small and readable without forcing consumers to unpack the full
+              // inbound message object a second time.
               void this.webhookService.dispatch(id, 'conversation.routing', {
                 sessionId: id,
                 ...collaboration,
                 message: {
-                  id: incoming.id,
-                  chatId: incoming.chatId,
                   from: incoming.from,
                   to: incoming.to,
                   body: incoming.body,

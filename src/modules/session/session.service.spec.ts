@@ -1213,8 +1213,6 @@ describe('SessionService', () => {
         targetedAgents: ['ops-lead', 'billing', '628222333444@c.us'],
         needsTriage: false,
         message: {
-          id: 'wa-group-1',
-          chatId: '123-456@g.us',
           from: '123-456@g.us',
           to: 'me@c.us',
           body: 'triage @ops-lead #billing',

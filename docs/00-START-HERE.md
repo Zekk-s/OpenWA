@@ -30,6 +30,7 @@ dashboard'lu, eklenti ve AI-agent (MCP) destekli açık kaynak **WhatsApp API Ga
 | WhatsApp motorunu değiştirmek | `ENGINE_TYPE` · `src/engine/` · `docs/03-system-architecture.md` |
 | Eklenti yazmak | `docs/19-plugin-architecture.md` · `docs/23-plugin-sandboxing.md` |
 | AI agent'a bağlamak (Claude/Cursor) | `README.md` → MCP · `docs/24-mcp-integration.md` |
+| AI-agent yeteneği kurmak (aşamalı plan) | `docs/26-ai-agentic-playbook.md` |
 | n8n ile otomasyon | `docs/22-n8n-integration.md` · `docs/examples/n8n-appointment-booking.md` |
 | Webhook kurmak/doğrulamak | `docs/examples/webhook-signature-verification.md` · API spec |
 | SDK kullanmak | `sdk/README.md` (java · javascript · php · python) |

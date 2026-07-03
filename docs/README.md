@@ -32,6 +32,7 @@
 
 | No  | Document                                                         | Description                                       |
 | --- | ---------------------------------------------------------------- | ------------------------------------------------- |
+| 00  | [Start Here — Focus Map](./00-START-HERE.md)                     | Orientation layer: what each tool is for and when to use it |
 | 01  | [Project Overview](./01-project-overview.md)                     | Vision, goals, scope, current status              |
 | 02  | [Requirements Specification](./02-requirements-specification.md) | Functional and non-functional requirements        |
 | 03  | [System Architecture](./03-system-architecture.md)               | Architecture, modules, and runtime flows          |

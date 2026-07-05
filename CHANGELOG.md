@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Local setup quickstart guide** (`OPENWA_LOCAL_QUICKSTART.md`) for running OpenWA with WhatsApp and optional Slack agentic bridge on local machines. Covers Node.js 22 setup, environment configuration, dashboard access, WhatsApp QR authentication, and troubleshooting steps.
+
 ## [0.8.7] - 2026-07-03
 
 ### Added

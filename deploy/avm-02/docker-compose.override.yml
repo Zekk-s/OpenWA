@@ -1,0 +1,45 @@
+# OpenWA — avm-02 kalıcı kurulum override'ı
+#
+# Kullanım (repo kökünden):
+#   docker compose -f docker-compose.yml -f deploy/avm-02/docker-compose.override.yml up -d --build
+#
+# Ana docker-compose.yml'e DOKUNMAZ; yalnızca avm-02'ye özgü ayarları ekler:
+#   - openwa-api'yi mevcut reverse proxy ağına (Traefik / Nginx Proxy Manager) bağlar
+#   - Kalıcılık ve agentic kullanım env'lerini iletir (AUTO_START_SESSIONS, MCP_*)
+#   - Traefik kullanılıyorsa hazır router etiketleri (Traefik yoksa etiketler etkisizdir)
+
+services:
+  openwa-api:
+    networks:
+      - proxy
+    environment:
+      # Reboot/restart sonrası yetkili WhatsApp oturumları otomatik ayağa kalkar
+      - AUTO_START_SESSIONS=${AUTO_START_SESSIONS:-true}
+      # MCP Streamable-HTTP server (agent'lar /mcp endpoint'ine bağlanır)
+      - MCP_ENABLED=${MCP_ENABLED:-true}
+      # Varsayılan read-only. Yazma araçları (mesaj gönderme vb.) için .env'de
+      # MCP_READONLY=false yap — bkz. deploy/avm-02/README.md güvenlik notu.
+      - MCP_READONLY=${MCP_READONLY:-true}
+    labels:
+      # --- Traefik (proxy olarak Traefik kullanıyorsan) ---
+      - 'traefik.enable=${TRAEFIK_ENABLE:-false}'
+      - 'traefik.docker.network=${PROXY_NETWORK:-proxy}'
+      - 'traefik.http.routers.openwa.rule=Host(`${WA_DOMAIN:-wa.localhost}`)'
+      - 'traefik.http.routers.openwa.entrypoints=websecure'
+      - 'traefik.http.routers.openwa.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}'
+      - 'traefik.http.services.openwa.loadbalancer.server.port=2785'
+    # Reverse proxy KULLANMADAN LAN'dan doğrudan erişmek istersen aç
+    # (ana dosyadaki 127.0.0.1 bağlamasının yerine geçer).
+    # NOT: `!override` etiketi Docker Compose v2.24+ gerektirir
+    # (kontrol: docker compose version). Daha eski sürümde bunun yerine
+    # ana docker-compose.yml'de API_BIND benzeri bir değişiklik gerekir.
+    # ports: !override
+    #   - '0.0.0.0:${API_PORT:-2785}:2785'
+
+networks:
+  # avm-02'deki mevcut reverse proxy docker ağı (Traefik/NPM'in bağlı olduğu ağ).
+  # Yoksa oluştur: docker network create proxy
+  # Farklı adlıysa .env'de PROXY_NETWORK ile belirt (ör. npm_default, web).
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-proxy}

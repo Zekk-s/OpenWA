@@ -29,7 +29,10 @@ services:
       - 'traefik.http.routers.openwa.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-letsencrypt}'
       - 'traefik.http.services.openwa.loadbalancer.server.port=2785'
     # Reverse proxy KULLANMADAN LAN'dan doğrudan erişmek istersen aç
-    # (ana dosyadaki 127.0.0.1 bağlamasının yerine geçer):
+    # (ana dosyadaki 127.0.0.1 bağlamasının yerine geçer).
+    # NOT: `!override` etiketi Docker Compose v2.24+ gerektirir
+    # (kontrol: docker compose version). Daha eski sürümde bunun yerine
+    # ana docker-compose.yml'de API_BIND benzeri bir değişiklik gerekir.
     # ports: !override
     #   - '0.0.0.0:${API_PORT:-2785}:2785'
 

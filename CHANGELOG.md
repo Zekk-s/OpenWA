@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Local setup quickstart guide** (`OPENWA_LOCAL_QUICKSTART.md`) for running OpenWA with WhatsApp and optional Slack agentic bridge on local machines. Covers Node.js 22 setup, environment configuration, dashboard access, WhatsApp QR authentication, and troubleshooting steps.
+- **Persistent home-server deployment kit** (`deploy/avm-02/`): a Docker Compose override that layers on the stock `docker-compose.yml` to attach OpenWA to an existing reverse-proxy network (Traefik labels included, Nginx Proxy Manager steps documented), enable `AUTO_START_SESSIONS` and the MCP endpoint for agentic use, plus a production `.env` template and an install/backup guide.
 
 ## [0.8.7] - 2026-07-03
 

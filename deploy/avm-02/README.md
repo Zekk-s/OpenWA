@@ -37,7 +37,9 @@ olmalı) → SSL sekmesinden Let's Encrypt.
 `docker compose ... up -d` ile yeniden uygula. Router etiketleri override
 dosyasında hazır.
 
-**Proxy'siz LAN erişimi:** override dosyasındaki `ports: !override` bloğunu aç.
+**Proxy'siz LAN erişimi:** override dosyasındaki `ports: !override` bloğunu aç
+(`!override` etiketi Docker Compose **v2.24+** gerektirir — `docker compose version`
+ile kontrol et).
 
 ## WhatsApp'ı bağla (tek seferlik)
 

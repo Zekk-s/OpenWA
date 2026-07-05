@@ -125,7 +125,7 @@ Detaylar için: `README.md` → MCP section
 
 ---
 
-## Ortam Değişkenleri — Tamam Referans
+## Ortam Değişkenleri — Tam Referans
 
 | Değişken | Açıklama | Örnek |
 | --- | --- | --- |

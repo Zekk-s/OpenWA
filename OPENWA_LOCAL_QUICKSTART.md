@@ -137,7 +137,7 @@ Detaylar için: `README.md` → MCP section
 | `SESSION_DATA_PATH` | Oturum dosyaları deposu | `./data/sessions` |
 | `PUPPETEER_HEADLESS` | Chromium UI olmadan | `true` |
 | `PUPPETEER_EXECUTABLE_PATH` | Chromium konumu | `/usr/bin/chromium` |
-| `STORAGE_TYPE` | Media depolama | `local` / `s3` / `minio` |
+| `STORAGE_TYPE` | Media depolama | `local` / `s3` |
 | `STORAGE_LOCAL_PATH` | Yerel media klasörü | `./data/media` |
 | `REDIS_ENABLED` | Redis cache | `false` |
 | `QUEUE_ENABLED` | BullMQ webhook retry queue | `false` |

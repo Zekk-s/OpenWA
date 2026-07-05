@@ -65,6 +65,7 @@ CACHE_ENABLED=false
 # Persistent admin API key (güvenli sakla)
 # Generated automatically on first boot; or set manually for consistency across restarts
 API_MASTER_KEY=owa_k1_YOUR_OWN_GENERATED_KEY_HERE
+```
 
 ### 3. OpenWA'yı başlat
 

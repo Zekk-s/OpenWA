@@ -45,6 +45,7 @@ DATABASE_LOGGING=false
 ENGINE_TYPE=whatsapp-web.js
 SESSION_DATA_PATH=./data/sessions
 PUPPETEER_HEADLESS=true
+PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage
 # PUPPETEER_EXECUTABLE_PATH is auto-detected; set if Chromium is in non-standard location
 
 # Webhook (opsiyonel, testler için)
@@ -62,14 +63,8 @@ QUEUE_ENABLED=false
 CACHE_ENABLED=false
 
 # Persistent admin API key (güvenli sakla)
+# Generated automatically on first boot; or set manually for consistency across restarts
 API_MASTER_KEY=owa_k1_YOUR_OWN_GENERATED_KEY_HERE
-```
-
-> **API_MASTER_KEY hakkında:** Eğer kendi anahtarını üretmek istersen:
-> ```bash
-> npm run generate-api-key
-> ```
-> Komutunu çalıştır ve çıktıdaki değeri kopyala.
 
 ### 3. OpenWA'yı başlat
 
@@ -197,4 +192,4 @@ Varsayılan port: `2785` → `http://localhost:2785`
 
 ---
 
-**Versiyon:** OpenWA 1.x · **Node.js:** 22 LTS · **Framework:** NestJS 11
+**Versiyon:** OpenWA 0.8.x · **Node.js:** 22 LTS · **Framework:** NestJS 11
